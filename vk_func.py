@@ -22,6 +22,8 @@ def search_users(sex, age_at, age_to, city, vk_id):
 							   'online': 0,
 							   'hometown': city
 							   })
+	if "error" in response:
+		return []
 	for element in response['items']:
 		people = {'name': element['first_name'], 'surname': element['last_name'],
 				  'link': basic_link + str(element['id']), 'vk_id_user': element['id']}
