@@ -2,6 +2,7 @@ import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.ext.hybdid import hybrid_property, hybdid_method
 
 # База данных подключение 
 Base = declarative_base()
@@ -23,12 +24,18 @@ class User(Base):
 	__tablename__ = 'bot_user'
 	id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
 	vk_id_user = sq.Column(sq.Integer, unique=True)
-	name = sq.Column(sq.String)
-	surname = sq.Column(sq.String)
 	age = sq.Column(sq.String)
 	sex = sq.Column(sq.String)
 	city = sq.Column(sq.String)
-	token = sq.Column(sq.String, unique=True)
+	_token = sq.Column(sq.String, unique=True)
+
+	@hybrid_property
+	def token(self) -> str:
+		return "".join([chr(ord(c) ^ 231) for c in self.token])
+
+	@token.inplace.setter
+	def token(self, new_token: str) -> None:
+		self._token = "".join([chr(ord(c) ^ 231) for c in self.token])
 
 
 # Проверка регистрации пользователя в БД
@@ -51,8 +58,6 @@ def registration(vk_id_user, name, surname, age, sex, city, user_token):
 	try:
 		new_user = User(
 			vk_id_user=vk_id_user,
-			name=name,
-			surname=surname,
 			age=age,
 			sex=sex,
 			city=city,
