@@ -2,7 +2,7 @@ import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.ext.hybdid import hybrid_property, hybdid_method
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 # База данных подключение 
 Base = declarative_base()
@@ -74,8 +74,6 @@ class FavUser(Base):
 	__tablename__ = 'favourite'
 	id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
 	fav_vk_id = sq.Column(sq.Integer, unique=True)
-	name = sq.Column(sq.String)
-	surname = sq.Column(sq.String)
 	link = sq.Column(sq.String)
 	vk_id_user = sq.Column(sq.Integer, sq.ForeignKey('bot_user.vk_id_user', ondelete='CASCADE'))
 
@@ -87,8 +85,6 @@ def add_user_favourite(fav_vk_id, name, surname, link, vk_id_user):
 	try:
 		new_user = FavUser(
 			fav_vk_id=fav_vk_id,
-			name=name,
-			surname=surname,
 			link=link,
 			vk_id_user=vk_id_user
 		)
@@ -104,7 +100,7 @@ def add_user_favourite(fav_vk_id, name, surname, link, vk_id_user):
 # => Возвращает все добавленные анкеты пользователем в избранное
 def check_favourite(vk_id_user):
     current_users_id = session.query(User).filter_by(vk_id_user=vk_id_user).first()
-    all_favorite = session.query(FavUser.fav_vk_id, FavUser.name, FavUser.surname, FavUser.link).filter_by(vk_id_user=current_users_id.vk_id_user).all()
+    all_favorite = session.query(FavUser.fav_vk_id, FavUser.link).filter_by(vk_id_user=current_users_id.vk_id_user).all()
     return all_favorite
 
 def delete_favourite(fav_vk_id):
@@ -156,8 +152,6 @@ class BlackList(Base):
 	__tablename__ = 'black_list'
 	id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
 	bl_vk_id = sq.Column(sq.Integer, unique=True)
-	name = sq.Column(sq.String)
-	surname = sq.Column(sq.String)
 	link = sq.Column(sq.String)
 	vk_id_user = sq.Column(sq.Integer, sq.ForeignKey('bot_user.vk_id_user', ondelete='CASCADE'))
 
@@ -174,8 +168,6 @@ def add_user_black_list(bl_vk_id, name, surname, link, vk_id_user):
 	try:
 		new_user = BlackList(
 			bl_vk_id=bl_vk_id,
-			name=name,
-			surname=surname,
 			link=link,
 			vk_id_user=vk_id_user
 		)
@@ -191,7 +183,7 @@ def add_user_black_list(bl_vk_id, name, surname, link, vk_id_user):
 # => Возвращает все добавленные анкеты пользователем в ЧС
 def check_black_list(vk_id_user):
     current_users_id = session.query(User).filter_by(vk_id_user=vk_id_user).first()
-    all_black_list = session.query(BlackList.bl_vk_id, BlackList.name, BlackList.surname, BlackList.link).filter_by(vk_id_user=current_users_id.vk_id_user).all()
+    all_black_list = session.query(BlackList.bl_vk_id, BlackList.link).filter_by(vk_id_user=current_users_id.vk_id_user).all()
     return all_black_list
 
 # Класс создания таблицы фото черного списка
